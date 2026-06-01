@@ -605,7 +605,7 @@
       <li><a href="#about" data-i18n="nav_about">Sobre mí</a></li>
       <li><a href="#contact" data-i18n="nav_contact">Contacto</a></li>
     </ul>
-    <a href="https://drive.google.com/file/d/1t4EWjp3S3g9P-VRPq6h6WMg_2vm_m8Hb/view?usp=sharing" target="_blank" class="btn-tertiary">
+    <a href="/PorfolioAgustinG.Taborelli/CV_Taborelli.pdf" download class="btn-tertiary" id="cv-download-btn">
       Descargar CV
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 3v8M4 9l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </a>
@@ -988,10 +988,22 @@ function applyLang(lang) {
   document.documentElement.lang = lang;
 }
 
+// Set CV download link based on language
+function setCVLink(lang) {
+  const btn = document.getElementById("cv-download-btn");
+  if (!btn) return;
+  if (lang === "en") {
+    btn.href = "/PorfolioAgustinG.Taborelli/CV_ATaborelli_Egl.pdf";
+  } else {
+    btn.href = "/PorfolioAgustinG.Taborelli/CV_ATaborelli_Esp.pdf";
+  }
+}
+
 // Auto-detect language
 const userLang = navigator.language || navigator.userLanguage || "es";
 const lang = userLang.toLowerCase().startsWith("en") ? "en" : "es";
 applyLang(lang);
+setCVLink(lang);
 </script>
 
 </body>
