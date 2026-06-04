@@ -615,7 +615,7 @@
   .study-toast-icon{flex-shrink:0;color:var(--case-color);display:flex;}
   .study-toast-text{flex:1;color:var(--text-muted);font-size:0.88rem;line-height:1.4;}
   .study-toast-text strong{display:block;color:var(--text);font-size:0.96rem;margin-bottom:2px;}
-  .study-toast-cta{flex-shrink:0;color:var(--accent1);font-weight:600;font-size:0.85rem;white-space:nowrap;}
+  .study-toast-cta{flex-shrink:0;color:var(--accent1);font-weight:400;font-size:0.85rem;white-space:nowrap;text-decoration:underline;text-underline-offset:3px;}
   @media(max-width:600px){.study-toast{flex-direction:column;align-items:flex-start;gap:10px;}}
 
   .task-detail{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;}
@@ -630,6 +630,8 @@
   .finding ul{margin:0;padding-left:16px;}
   .finding li{font-size:0.82rem;color:var(--text-muted);line-height:1.5;margin-bottom:8px;}
   @media(max-width:768px){.task-findings{grid-template-columns:1fr;}}
+  .tab-content{scroll-margin-top:120px;}
+  .task-bar-fill, .survey-fill{transition:width 1s cubic-bezier(0.22,1,0.36,1);}
 </style></head>
 <body>
 <nav>
@@ -1024,17 +1026,17 @@
 </div>
 <div class="data-overview fade-up">
 <div class="data-stat">
-<div class="data-stat-num">9/10</div>
+<div class="data-stat-num" data-count="9" data-suffix="/10">9/10</div>
 <div class="data-stat-label" data-i18n="b213">Terminaron la prueba</div>
 <div class="data-stat-sub" data-i18n="b214">90% de finalización</div>
 </div>
 <div class="data-stat">
-<div class="data-stat-num" data-i18n="b215">10 min</div>
+<div class="data-stat-num" data-i18n="b215" data-count="10" data-suffix=" min">10 min</div>
 <div class="data-stat-label" data-i18n="b216">Tiempo promedio total</div>
 <div class="data-stat-sub" data-i18n="b217">por participante</div>
 </div>
 <div class="data-stat">
-<div class="data-stat-num" data-i18n="b218">NPS 60</div>
+<div class="data-stat-num" data-i18n="b218" data-count="60" data-prefix="NPS ">NPS 60</div>
 <div class="data-stat-label" data-i18n="b219">Índice de recomendación</div>
 <div class="data-stat-sub" data-i18n="b220">70% promotores − 10% detractores</div>
 </div>
@@ -1138,11 +1140,13 @@
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
     document.getElementById("tab-" + name).classList.add("active");
     event.target.classList.add("active");
-    var _tw=document.querySelector(".tabs-wrapper");
-    if(_tw){var _y=0,_e=_tw;while(_e){_y+=_e.offsetTop;_e=_e.offsetParent;}window.scrollTo({top:_y-64,behavior:"smooth"});}
+    var _tc=document.getElementById("tab-"+name);
+    if(_tc){_tc.scrollIntoView({behavior:"smooth",block:"start"});}
     setTimeout(() => {
       document.querySelectorAll("#tab-" + name + " .fade-up").forEach(el => el.classList.add("visible"));
     }, 50);
+    setTimeout(function(){ if(window.__revealTab) window.__revealTab(name); }, 80);
+
   }
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
@@ -1166,5 +1170,41 @@ var L=null;try{L=localStorage.getItem('site_lang');}catch(e){}
 if(!L){var n=(navigator.language||'es').toLowerCase();L=n.indexOf('en')===0?'en':'es';}
 applyLang(L);
 })();
-</script></body>
+</script><script>
+(function(){
+  function animateStatCount(el){
+    if(el.dataset.counted) return; el.dataset.counted="1";
+    var target=parseFloat(el.getAttribute("data-count")); if(isNaN(target)) return;
+    var suffix=el.getAttribute("data-suffix")||"", prefix=el.getAttribute("data-prefix")||"";
+    var dur=900, start=performance.now();
+    function tick(now){
+      var p=Math.min((now-start)/dur,1), eased=1-Math.pow(1-p,3);
+      el.textContent=prefix+Math.round(eased*target)+suffix;
+      if(p<1) requestAnimationFrame(tick); else el.textContent=prefix+target+suffix;
+    }
+    requestAnimationFrame(tick);
+  }
+  function fillBar(el){ if(el.dataset.filled) return; el.dataset.filled="1"; el.style.width=el.dataset.w||el.style.width; }
+  document.querySelectorAll(".task-bar-fill, .survey-fill").forEach(function(el){
+    if(el.dataset.w===undefined){ el.dataset.w=el.style.width||"0%"; el.style.width="0%"; }
+  });
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      if(e.target.hasAttribute("data-count")) animateStatCount(e.target); else fillBar(e.target);
+      io.unobserve(e.target);
+    });
+  },{threshold:0.25});
+  document.querySelectorAll("[data-count], .task-bar-fill, .survey-fill").forEach(function(el){ io.observe(el); });
+  window.__revealTab=function(name){
+    var root=document.getElementById("tab-"+name); if(!root) return;
+    var vh=window.innerHeight||document.documentElement.clientHeight;
+    root.querySelectorAll("[data-count], .task-bar-fill, .survey-fill").forEach(function(el){
+      var r=el.getBoundingClientRect();
+      if(r.top<vh+40 && r.bottom>0){ if(el.hasAttribute("data-count")) animateStatCount(el); else fillBar(el); }
+    });
+  };
+})();
+</script>
+</body>
 </html>
