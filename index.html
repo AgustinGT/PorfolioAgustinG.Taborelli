@@ -824,6 +824,30 @@
   .btn-primary.is-disabled, .btn-tertiary.is-disabled { opacity: 0.4; pointer-events: none; cursor: default; filter: grayscale(0.4); }
   .ds-card--soon { opacity: 0.9; }
   .ds-card--soon .ds-name { color: var(--text-muted); }
+  @media (max-width: 600px) {
+    .hero-ctas { flex-direction: column; align-items: stretch; }
+    .hero-ctas .btn-primary,
+    .hero-ctas .btn-secondary,
+    .hero-ctas .btn-tertiary {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+    .ds-actions { flex-direction: column; align-items: stretch; }
+    .ds-actions .btn-primary,
+    .ds-actions .btn-tertiary {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+    .project-arrow {
+      width: 100%;
+      align-self: stretch;
+      justify-content: center;
+      text-align: center;
+    }
+    .hero-image { margin-top: 32px; }
+  }
   </style>
 </head>
 <body>
